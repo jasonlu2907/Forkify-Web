@@ -1,0 +1,12 @@
+{ //babel config file
+    "presets": [ // collection of code transform plugins
+        ["env", {
+            "targets": {
+                "browsers": [ // which browser you want to target
+                    "last 5 versions",
+                    "ie >= 8"
+                ]
+            }
+        }]
+    ]
+}
