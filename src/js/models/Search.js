@@ -7,12 +7,12 @@ export default class Search {
     }
     
     async getResult() {
+        const proxy = 'https://cors-anywhere.herokuapp.com/';
         try {
-            const proxy = 'https://cors-anywhere.herokuapp.com/';
-            const result = await axios(`${proxy}https://forkify-api.herokuapp.com/api/search?&q=${this.query}`);
+            const res = await axios(`${proxy}https://forkify-api.herokuapp.com/api/search?&q=${this.query}`);
             // I used axios instead of fetch because 1. fetch may prohibit from older browsers
             // 2. fetch takes 2 step to get the json file
-            this.res = result.data.recipes;
+            this.result = res.data.recipes;
             // console.log(this.res);
     
         } catch(error) {
