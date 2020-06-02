@@ -1,5 +1,6 @@
 // Global app controller
 import Search from './models/Search';
+import Recipe from './models/Recipe';
 import * as searchView from './views/searchView';
 import { elements, Loader, removeLoader } from './views/base';
 
@@ -11,6 +12,7 @@ import { elements, Loader, removeLoader } from './views/base';
  */
 const state = {};
 
+/**SEARCH CONTROLLER */
 const controlSearch = async () => {
     // 1. Get the query from the view
     const query = searchView.getInput();
@@ -25,12 +27,16 @@ const controlSearch = async () => {
         searchView.clearResult();
         Loader(elements.searchResult);
         
-        // 4. Search for recipes
-        await state.search.getResult();
-
-        // 5. Render result to UI
-        removeLoader(); // have to wait for the result to come and then remove Loader
-        searchView.renderResult(state.search.result);
+        try {
+            // 4. Search for recipes
+            await state.search.getResult();
+    
+            // 5. Render result to UI
+            removeLoader(); // have to wait for the result to come and then remove Loader
+            searchView.renderResult(state.search.result);
+        } catch(error) {
+            alert('Loi Search');
+        }
     
     }
 };
@@ -39,6 +45,12 @@ elements.searchForm.addEventListener('submit', e => {
     e.preventDefault();
     controlSearch();
 });
+
+//TESTING PURPOSE
+// window.addEventListener('load', e => {
+//     e.preventDefault();
+//     controlSearch();
+// });
 
 
 // Khong chac ket qua se > 10 nen lam sao de tao eventHandler khi no chua xuat hien tren hTML?
@@ -54,3 +66,39 @@ elements.searchResultPages.addEventListener('click', e => {
     }
 
 });
+
+/**RECIPE CONTROLLER */
+const controlRecipe = async () => {
+    const id = window.location.hash.replace('#', ''); // window.location = url and as this is a string so we use replace instead splice as I was thinking
+    console.log(id);
+
+    // 1. Prepare the UI for changes
+
+    // 2. Create new Recipe obj
+    state.recipe = new Recipe(id);
+    // window.r = state.recipe;
+
+    // 3. Get the recipe
+    try {
+        // GET recipe data and parse Ingredients
+        await state.recipe.getRecipe();
+        state.recipe.parseIngredients();
+
+        // 3.1 Calculate cooking time and serving number
+        state.recipe.calcTime();
+        state.recipe.calcServing();
+    
+        // 4. Render it to view
+        console.log(state.recipe);
+    } catch(error) {
+        alert('Loi recipe');
+    }
+    
+};
+
+// window.addEventListener('hashchange', controlRecipe);
+/**Assuming when the user bookmarked the page with the same id and nothing happen
+/* cause the #id must be changed first. That's why we use the 'load' event.
+*/
+// window.addEventListener('load', controlRecipe);
+['hashchange', 'load'].forEach(event => window.addEventListener(event, controlRecipe));

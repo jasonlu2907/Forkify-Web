@@ -1,5 +1,6 @@
 //Gonna use ES6 classes in order to describe the data model for Search
 import axios from 'axios';
+import {proxy} from '../config'
 
 export default class Search {
     constructor(query) {
@@ -7,7 +8,6 @@ export default class Search {
     }
     
     async getResult() {
-        const proxy = 'https://cors-anywhere.herokuapp.com/';
         try {
             const res = await axios(`${proxy}https://forkify-api.herokuapp.com/api/search?&q=${this.query}`);
             // I used axios instead of fetch because 1. fetch may prohibit from older browsers
