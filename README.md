@@ -1,2 +1,5 @@
-# forkify-babel-config-first
-This repo contains the forkify project with configured webpack and babel (lectures 133, 134, 135)
+# Forkify WebApp 🥡
+  Provides tons of recipes such as pasta, pizza, etc.
+- [Technologies]: Using modern JavaScript ES6, HTML, CSS, Label, and Webpack.
+## 🙏 Acknowledge
+  Jonas Schmedtmann
