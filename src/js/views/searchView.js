@@ -2,10 +2,18 @@ import { elements } from './base';
 
 export const getInput = () => elements.searchInput.value;
 
+export const highlightSelected = id => {
+    const resArr = Array.from(document.querySelectorAll('.result__link'));
+    resArr.forEach(el => {
+        el.classList.remove('result__link--active');
+    });
+    document.querySelector(`a[href*="${id}"]`).classList.add('result__link--active');
+};
+
 const renderRecipe = (recipe) => {
     const markup = `
     <li>
-        <a class="results__link results__link--active" href="#${recipe.recipe_id}">
+        <a class="results__link" href="#${recipe.recipe_id}">
             <figure class="results__fig">
                 <img src="${recipe.image_url}" alt="${recipe.title}">
             </figure>

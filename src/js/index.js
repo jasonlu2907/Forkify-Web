@@ -2,6 +2,7 @@
 import Search from './models/Search';
 import Recipe from './models/Recipe';
 import * as searchView from './views/searchView';
+import * as recipeView from './views/recipeView';
 import { elements, Loader, removeLoader } from './views/base';
 
 /** Global state of the app
@@ -52,14 +53,13 @@ elements.searchForm.addEventListener('submit', e => {
 //     controlSearch();
 // });
 
-
 // Khong chac ket qua se > 10 nen lam sao de tao eventHandler khi no chua xuat hien tren hTML?
 // => Delegation in JS
 elements.searchResultPages.addEventListener('click', e => {
     const btn = e.target.closest('.btn-inline'); // Tim chinh xac btn with element method Closest
     if (btn) {
         const goToPage = parseInt(btn.dataset.goto, 10); // Read more about data attribute
-        //if we set data-hello instead data-goto, we will write sataset.hello
+        //if we set data-hello instead data-goto, we would write dataset.hello
 
         searchView.clearResult();
         searchView.renderResult(state.search.result, goToPage);
@@ -73,6 +73,11 @@ const controlRecipe = async () => {
     console.log(id);
 
     // 1. Prepare the UI for changes
+    recipeView.clearRecipe();
+    Loader(elements.recipe);
+
+    // 1b. Hightlight
+    if (state.search) searchView.highlightSelected(id);
 
     // 2. Create new Recipe obj
     state.recipe = new Recipe(id);
@@ -89,7 +94,10 @@ const controlRecipe = async () => {
         state.recipe.calcServing();
     
         // 4. Render it to view
-        console.log(state.recipe);
+        // console.log(state.recipe);
+        removeLoader();
+        recipeView.renderRecipe(state.recipe);
+        
     } catch(error) {
         alert('Loi recipe');
     }
@@ -102,3 +110,18 @@ const controlRecipe = async () => {
 */
 // window.addEventListener('load', controlRecipe);
 ['hashchange', 'load'].forEach(event => window.addEventListener(event, controlRecipe));
+
+// Handling recipe buttons
+elements.recipe.addEventListener('click', e => {
+    // Not closest, use matches because there's alotof btns that we might hit in
+    if (e.target.matches('.btn-decrease, .btn-decrease *')) {
+        if(state.recipe.serving > 1) {
+            state.recipe.updateServings('dec');
+            recipeView.updateServingsIngredients(state.recipe);
+        }
+    } else if (e.target.matches('.btn-increase, .btn-increase *')) {
+        state.recipe.updateServings('inc');
+        recipeView.updateServingsIngredients(state.recipe);
+    }
+    // console.log(state.recipe);
+})
