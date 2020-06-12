@@ -1,8 +1,10 @@
 // Global app controller
 import Search from './models/Search';
 import Recipe from './models/Recipe';
+import List from './models/ShoppingList';
 import * as searchView from './views/searchView';
 import * as recipeView from './views/recipeView';
+import * as listView from './views/listView';
 import { elements, Loader, removeLoader } from './views/base';
 
 /** Global state of the app
@@ -12,6 +14,7 @@ import { elements, Loader, removeLoader } from './views/base';
  * - Liked recipes
  */
 const state = {};
+window.state = state;
 
 /**SEARCH CONTROLLER */
 const controlSearch = async () => {
@@ -72,34 +75,36 @@ const controlRecipe = async () => {
     const id = window.location.hash.replace('#', ''); // window.location = url and as this is a string so we use replace instead splice as I was thinking
     console.log(id);
 
-    // 1. Prepare the UI for changes
-    recipeView.clearRecipe();
-    Loader(elements.recipe);
-
-    // 1b. Hightlight
-    if (state.search) searchView.highlightSelected(id);
-
-    // 2. Create new Recipe obj
-    state.recipe = new Recipe(id);
-    // window.r = state.recipe;
-
-    // 3. Get the recipe
-    try {
-        // GET recipe data and parse Ingredients
-        await state.recipe.getRecipe();
-        state.recipe.parseIngredients();
-
-        // 3.1 Calculate cooking time and serving number
-        state.recipe.calcTime();
-        state.recipe.calcServing();
+    if (id) { 
+        // 1. Prepare the UI for changes
+        recipeView.clearRecipe();
+        Loader(elements.recipe);
     
-        // 4. Render it to view
-        // console.log(state.recipe);
-        removeLoader();
-        recipeView.renderRecipe(state.recipe);
+        // 1b. Hightlight
+        if (state.search) searchView.highlightSelected(id);
+    
+        // 2. Create new Recipe obj
+        state.recipe = new Recipe(id);
+        // window.r = state.recipe;
+    
+        // 3. Get the recipe
+        try {
+            // GET recipe data and parse Ingredients
+            await state.recipe.getRecipe();
+            state.recipe.parseIngredients();
+    
+            // 3.1 Calculate cooking time and serving number
+            state.recipe.calcTime();
+            state.recipe.calcServing();
         
-    } catch(error) {
-        alert('Loi recipe');
+            // 4. Render it to view
+            // console.log(state.recipe);
+            removeLoader();
+            recipeView.renderRecipe(state.recipe);
+            
+        } catch(error) {
+            alert('Loi recipe');
+        }
     }
     
 };
@@ -111,7 +116,41 @@ const controlRecipe = async () => {
 // window.addEventListener('load', controlRecipe);
 ['hashchange', 'load'].forEach(event => window.addEventListener(event, controlRecipe));
 
-// Handling recipe buttons
+
+/**SHOPPING LIST CONTROLLER */
+const controlList = () => {
+    // Create a new List
+    if (!state.list) {
+        state.list = new List();
+    }
+
+    // Add each ingredient to the list and the UI
+    state.recipe.ingredients.forEach(el => {
+        const item = state.list.addItem(el.count, el.unit, el.ingredient);
+        listView.renderItem(item);
+    });
+};
+
+/* Handle delete and update Shopping list items */
+elements.shoppingList.addEventListener('click', e => {
+    const id = e.target.closest('.shopping__item').dataset.itemid;
+
+    // Delete
+    if (e.target.matches('.shopping__delete, .shopping__delete *')) {
+        // Delete from state
+        state.list.removeItem(id);
+        
+        // Delete from UI
+        listView.removeItem(id)
+
+        // Handle count update
+    } else if (e.target.matches('.shopping__count-value')) {
+        const val = parseFloat(e.target.value, 10);
+        state.list.updateCount(id, val);
+    }
+});
+
+/* Handling recipe buttons */
 elements.recipe.addEventListener('click', e => {
     // Not closest, use matches because there's alotof btns that we might hit in
     if (e.target.matches('.btn-decrease, .btn-decrease *')) {
@@ -122,6 +161,10 @@ elements.recipe.addEventListener('click', e => {
     } else if (e.target.matches('.btn-increase, .btn-increase *')) {
         state.recipe.updateServings('inc');
         recipeView.updateServingsIngredients(state.recipe);
+    } else if (e.target.matches('.recipe__btn--add, .recipe__btn--add *')) {
+        controlList();
     }
     // console.log(state.recipe);
 })
+
+
