@@ -3,11 +3,11 @@ import { elements } from './base';
 export const getInput = () => elements.searchInput.value;
 
 export const highlightSelected = id => {
-    const resArr = Array.from(document.querySelectorAll('.result__link'));
+    const resArr = Array.from(document.querySelectorAll('.results__link'));
     resArr.forEach(el => {
-        el.classList.remove('result__link--active');
+        el.classList.remove('results__link--active');
     });
-    document.querySelector(`a[href*="${id}"]`).classList.add('result__link--active');
+    document.querySelector(`.results__link[href*="${id}"]`).classList.add('results__link--active');
 };
 
 const renderRecipe = (recipe) => {
